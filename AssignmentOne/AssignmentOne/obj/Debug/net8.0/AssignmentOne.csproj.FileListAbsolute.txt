@@ -1,0 +1,15 @@
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\bin\Debug\net8.0\AssignmentOne.exe
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\bin\Debug\net8.0\AssignmentOne.deps.json
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\bin\Debug\net8.0\AssignmentOne.runtimeconfig.json
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\bin\Debug\net8.0\AssignmentOne.dll
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\bin\Debug\net8.0\AssignmentOne.pdb
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.AssemblyInfoInputs.cache
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.AssemblyInfo.cs
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.csproj.CoreCompileInputs.cache
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.sourcelink.json
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.dll
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\refint\AssignmentOne.dll
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.pdb
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\AssignmentOne.genruntimeconfig.cache
+C:\Users\cdm12\OneDrive\Desktop\Files to Backup\Trent Winter 2024\3020 Data Structs 2\Assignment 1\DataStructsTwo-AssignmentOne\AssignmentOne\AssignmentOne\obj\Debug\net8.0\ref\AssignmentOne.dll
