@@ -1,4 +1,6 @@
-﻿public class ServerGraph {
+﻿using System.Data.Common;
+
+public class ServerGraph {
     // 3 marks
     private class WebServer {
         public string Name;             //Unique webserver name
@@ -74,8 +76,7 @@
             V[NumServers] = newWebServer;
 
             //Set adjacency matrix
-            E[0,0] = false;
-            E[0,0] = false;     
+            E[0,0] = false;    
 
             //Increment after adding
             NumServers++;
@@ -110,20 +111,24 @@
 
             V[NumServers] = newWebServer;
 
-            //Initialize all of the edges for this new vertex to -1 (no edges/connections)
-            //We don't need 2 loops b/c we can just swap the order of i and numVertices
-            for (int i = 0; i <= NumServers; i++)
-            {
+            //Initialize all of the edges for this new vertex to false (no edges/connections)
+            //We don't need 2 loops b/c we can just swap the order of i and numServers
+            for (int i = 0; i <= NumServers; i++) {
                 E[NumServers, i] = false;     //say numVertices = 4  then the iterations would look like this (4,0),(4,1),(4,2),(4,3),(4,4) were everyone would be set to -1
                 E[i, NumServers] = false;     //(0,4),(1,4),(2,4),(3,4),(4,4)
             }
 
-            //Connect it to the other server in the adjacency matrix E
-
-
-
             //Increment after adding
             NumServers++;
+
+            //Connect it to the other server in the adjacency matrix E
+            //The ServerGraph is undirected, so set the adjacency matrix both ways
+            var otherIndex = FindServer(other);
+            var nameIndex = FindServer(name);
+            //Console.WriteLine(nameIndex);
+            //Console.WriteLine(otherIndex);
+            E[nameIndex,otherIndex] = true;
+            E[otherIndex,nameIndex] = true;
 
             return true;
         }
@@ -169,6 +174,7 @@
     public int ShortestPath(string from, string to) {
         return -1;
     }
+    
     // 4 marks
     // Print the name and connections of each server as well as
     // the names of the webpages it hosts
@@ -176,19 +182,46 @@
         Console.WriteLine("Number of servers: " + NumServers);
 
 
-
         Console.WriteLine("WebServers Length:" + V.Length);
         for (int i = 0; i < NumServers; i++) {
             Console.WriteLine(V[i].Name);
         }
 
+        //Start at -1 so that I can print the names for the columns (probably a better way to do this)
+        //Edges:
+        //        A(0)    B(1)    D(2)    E(3)    F(4)    G(5)      <-- else does this
+        //A(0)    False   True    False   True    True    True
+        //B(1)    True    False   True    False   False   False
+        //D(2)    False   True    False   False   False   False
+        //E(3)    True    False   False   False   False   False
+        //F(4)    True    False   False   False   False   False
+        //G(5)    True    False   False   False   False   False
+        Console.WriteLine("Edges:");
+        for (int row = -1; row < NumServers; row++) {
+            //from 0 to numServers, print out the row names and the E[] values
+            if (row != -1) {
+                Console.Write(V[row].Name + "(" + row + ")" + "    ");
 
-        Console.WriteLine("Edges: " + E);
-        for (int row = 0; row < NumServers; row++) {
-            for (int column = 0; column < NumServers; column++) {
-                Console.WriteLine("E[" + row + "," + column + "] is " + E[row,column]);
+                for (int column = 0; column < NumServers; column++) {
+                    //Write the edge value
+                    Console.Write(E[row, column] + "    ");
+                }
             }
+            //Write the column names for the very top row
+            else {
+                var msg = "         ";
+                for (int i = 0; i < NumServers; i++) {
+                    msg = msg + V[i].Name + "(" + i + ")" + "    ";
+                }
+                Console.Write(msg);
+            }
+            
+            //Start the next line
+            Console.WriteLine("");
         }
+
+        //Print webpages hosted by each server
+        Console.WriteLine("Webpages hosted by servers");
     }
 }
 // 5 marks
@@ -299,10 +332,10 @@ class Program
 
         serverGraphOne.AddServer("B", "A"); //Test Adding a duplicate server
 
-        //serverGraphOne.AddServer("D", "A"); //Test Dubling the capacity
-        //serverGraphOne.AddServer("E", "A"); 
-        //serverGraphOne.AddServer("F", "A"); 
-        //serverGraphOne.AddServer("G", "A"); 
+        serverGraphOne.AddServer("D", "B"); //Test increasing the capacity
+        serverGraphOne.AddServer("E", "A"); 
+        serverGraphOne.AddServer("F", "A"); 
+        serverGraphOne.AddServer("G", "A"); 
 
         serverGraphOne.PrintGraph();
 
