@@ -1,10 +1,11 @@
 ﻿using System.Data.Common;
+using System.Xml.Linq;
 
 public class ServerGraph {
     // 3 marks
     private class WebServer {
-        public string Name;             //Unique webserver name
-        public List<WebPage> P;         //What webpages this server hosts
+        public string Name = "";        //Unique webserver name
+        public List<WebPage> P = new List<WebPage>();         //What webpages this server hosts
     }
 
     private WebServer[] V;  //List of all webservers
@@ -16,10 +17,10 @@ public class ServerGraph {
     public ServerGraph() {
         V = new WebServer[1];   //Start at 1 so that the double capacity function doesn't have                       
         E = new bool[1, 1];     //to check if there are no elements in the array (can't multiple 0)
-        NumServers = 0;    
+        NumServers = 0;  
     }
 
-    // 2 marks
+    // 2 marks DONE
     // Return the index of the server with the given name; otherwise return -1
     private int FindServer(string name) {
         for (int i = 0; i < NumServers; i++) {
@@ -32,7 +33,8 @@ public class ServerGraph {
         //Couldn't find server
         return -1;
     }
-    // 3 marks
+
+    // 3 marks DONE
     // Double the capacity of the server graph with respect to web servers
     private void DoubleCapacity() {
         //Double V's capacity
@@ -61,7 +63,7 @@ public class ServerGraph {
         //Console.WriteLine("E's capacity after: " + E.GetLength(0) + "," + E.GetLength(1));
     }
 
-    // 3 marks
+    // 3 marks DONE
     // Add a server with the given name and connect it to the other server
     // Return true if successful; otherwise return false
     public bool AddServer(string name, string other) {
@@ -104,8 +106,7 @@ public class ServerGraph {
             }
 
             //Create a new webserver
-            var newWebServer = new WebServer
-            {
+            var newWebServer = new WebServer {
                 Name = name
             };
 
@@ -122,12 +123,11 @@ public class ServerGraph {
             NumServers++;
 
             //Connect it to the other server in the adjacency matrix E
-            //The ServerGraph is undirected, so set the adjacency matrix both ways
             var otherIndex = FindServer(other);
             var nameIndex = FindServer(name);
             //Console.WriteLine(nameIndex);
             //Console.WriteLine(otherIndex);
-            E[nameIndex,otherIndex] = true;
+            E[nameIndex,otherIndex] = true; //The ServerGraph is undirected, so set the adjacency matrix both ways
             E[otherIndex,nameIndex] = true;
 
             return true;
@@ -137,9 +137,18 @@ public class ServerGraph {
     // 3 marks
     // Add a webpage to the server with the given name
     // Return true if successful; other return false
-    //public bool AddWebPage(WebPage w, string name) {
-        //return false;
-    //}
+    public bool AddWebPage(WebPage w, string serverName) {
+        //Check if server exists
+        var serverNameIndex = FindServer(serverName);
+        if (serverNameIndex == -1) {
+            Console.WriteLine("Server " + serverName + " does not exist. Cannot add webpage.");
+            return false;
+        }
+
+        //Add the webpage to the server
+        V[serverNameIndex].P.Add(w);
+        return true;
+    }
 
     // 4 marks
     // Remove the server with the given name by assigning its connections
@@ -222,13 +231,16 @@ public class ServerGraph {
 
         //Print webpages hosted by each server
         Console.WriteLine("Webpages hosted by servers");
+        Console.WriteLine();
     }
 }
+
+
 // 5 marks
-class WebPage {
+public class WebPage {
     public string Name { get; set; }
     public string Server { get; set; }
-    public List<WebPage> E { get; set; }
+    public List<WebPage> E { get; set; } //These are the hyperlinks to other webpages  e.g steam.com("this" webpage) --> (points to)steam.ca
    
 
     public WebPage(string name, string host) {
@@ -238,32 +250,74 @@ class WebPage {
     }
 
     public int FindLink(string name) {
+        //Search through all of the links that this webpage has
+        for (int i = 0; i < E.Count; i++) {
+            if (name == E[i].Name) {
+                Console.WriteLine("Found link");
+                return i;
+            }
+        }
+        
         return -1;
     }
-    
-
 }
+
+
 class WebGraph {
     private List<WebPage> P;
+    private ServerGraph serverGraph;
     //...
 
     // 2 marks
     // Create an empty WebGraph
-    public WebGraph() { 
-    
+    public WebGraph(ServerGraph sg) { 
+        P = new List<WebPage>();
+        serverGraph = sg;
     }
+
 
     // 2 marks
     // Return the index of the webpage with the given name; otherwise return -1
     private int FindPage(string name) {
+        //Look through all of the webpages in the list P
+        for (int i = 0; i < P.Count; i++) {
+            //if the name is found
+            if (name == P[i].Name) {
+                return i;
+            }
+        }
+
         return -1;
     }
+
 
     // 4 marks
     // Add a webpage with the given name and store it on the host server
     // Return true if successful; otherwise return false
     public bool AddPage(string name, string host) {
-        return false;
+        var newWebpage = new WebPage(name, host);
+
+        //Page doesn't exist
+        if (FindPage(newWebpage.Name) == -1) {
+            //Add the webpage to the server
+            var result = serverGraph.AddWebPage(newWebpage, newWebpage.Server);
+
+            //if true, then the server host exists. The webpage has just been added to the server host, now we update the P listing in this webgraph.
+            if (result == true) {
+                //Add the webpage to the web graph
+                P.Add(newWebpage);
+                return true;
+            }
+            else {
+                Console.WriteLine("Error adding webpage " + name + ": Host server probably doesn't exist.");
+                return false;
+            }
+        }
+        //Page exists
+        else {
+            Console.WriteLine("Page already exists");
+            return false;
+        }
     }
 
     // 8 marks
@@ -299,15 +353,9 @@ class WebGraph {
     // 3 marks
     // Print the name and hyperlinks of each webpage
     public void PrintGraph() {
-    ///////////////////////////////// maybe something like this
-    ///Node  Connected(c)   Node
-    ///Node A connections
-    /// A        False       A
-    ///A        True        B
-    ///A        False       C
-    ///
-    ///Node C
-    ///C        False       A
+        for (int i = 0; i < P.Count; i++) {
+            Console.WriteLine(P[i].Name + " connected to " + P[i].Server);
+        }
     }
 }
 
@@ -316,11 +364,11 @@ class Program
 {
     static void Main(string[] args)
     {
-        //Console.WriteLine("Hello, World!");
-
         ////////////////Testing//////////////////////////////////
         //1.Instantiate a server graph and a web graph.
         var serverGraphOne = new ServerGraph();
+        var webGraphOne = new WebGraph(serverGraphOne);
+
         //Console.WriteLine("New ServerGraph created: " + serverGraphOne);
 
         //2.Add a number of servers.
@@ -341,6 +389,27 @@ class Program
 
         //3.Add additional connections between servers.
         //4.Add a number of webpages to various servers.
+        webGraphOne.AddPage("001", "B");    //Test adding a webpage to an existing host
+
+        webGraphOne.AddPage("002", "Z");    //Test adding a webpage to a non-existing host
+
+        webGraphOne.AddPage("001", "B");    //Test adding a duplicate webpage to an existing host
+
+        webGraphOne.AddPage("001", "Z");    //Test adding a duplicate webpage to a non-existing host
+
+        webGraphOne.AddPage("003", "A");    //Test adding multiple webpages
+        webGraphOne.AddPage("004", "A");    
+        webGraphOne.AddPage("005", "B");    
+        webGraphOne.AddPage("006", "B");    
+        webGraphOne.AddPage("007", "D");   
+        webGraphOne.AddPage("008", "D");    
+
+
+        webGraphOne.PrintGraph();
+
+
+
+
         //5.Add and remove hyperlinks between the webpages.
         //6.Remove both webpages and servers.
         //7.Determine the articulation points of the remaining Internet.
