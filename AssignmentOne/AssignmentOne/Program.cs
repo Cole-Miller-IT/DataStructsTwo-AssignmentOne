@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 
 public class ServerGraph {
-    // 3 marks
+    // 3 marks 
     private class WebServer {
         public string Name = "";        //Unique webserver name
         public List<WebPage> P = new List<WebPage>();         //What webpages this server hosts
@@ -134,7 +134,7 @@ public class ServerGraph {
         }
     }
 
-    // 3 marks
+    // 3 marks DONE
     // Add a webpage to the server with the given name
     // Return true if successful; other return false
     public bool AddWebPage(WebPage w, string serverName) {
@@ -157,13 +157,32 @@ public class ServerGraph {
     public bool RemoveServer(string name, string other) {
         return false;
     }
-    // 3 marks
+    // 3 marks DONE
     // Add a connection from one server to another
     // Return true if successful; otherwise return false
     // Note that each server is connected to at least one other server
     public bool AddConnection(string from, string to) {
-        return false;
+        var fromServerIndex = FindServer(from);
+        var toServerIndex = FindServer(to);
+
+        //Check if either server doesn't exist
+        if (fromServerIndex == -1) {
+            Console.WriteLine("Server " + from + " does not exist. Cannot connect.");
+            return false;
+        }
+
+        if (toServerIndex == -1) {
+            Console.WriteLine("Server " + to + " does not exist. Cannot connect.");
+            return false;
+        }
+
+        //Both servers exist, add a connection between them because the serverGraph is undirected
+        E[fromServerIndex, toServerIndex] = true;
+        E[toServerIndex, fromServerIndex] = true;
+
+        return true;
     }
+    
     // 10 marks
     // Return all servers that would disconnect the server graph into
     // two or more disjoint graphs if ever one of them would go down
@@ -184,7 +203,7 @@ public class ServerGraph {
         return -1;
     }
     
-    // 4 marks
+    // 4 marks DONE
     // Print the name and connections of each server as well as
     // the names of the webpages it hosts
     public void PrintGraph() { 
@@ -231,12 +250,23 @@ public class ServerGraph {
 
         //Print webpages hosted by each server
         Console.WriteLine("Webpages hosted by servers");
-        Console.WriteLine();
+        //Loop through each of the servers 
+        for (int i = 0; i < NumServers; i++) {
+            Console.Write("Server " + V[i].Name + " is hosting the following webpages: ");
+            //Loop through all of the webpages for the current server
+            string msg = "";
+            for (int j = 0; j < V[i].P.Count; j++) {
+                //Concatenate all of the webpages names to print out later
+                msg = msg + V[i].P[j].Name + ", ";
+            }
+            Console.Write(msg);
+            Console.WriteLine();
+        }
     }
 }
 
 
-// 5 marks
+// 5 marks DONE?
 public class WebPage {
     public string Name { get; set; }
     public string Server { get; set; }
@@ -268,7 +298,7 @@ class WebGraph {
     private ServerGraph serverGraph;
     //...
 
-    // 2 marks
+    // 2 marks DONE
     // Create an empty WebGraph
     public WebGraph(ServerGraph sg) { 
         P = new List<WebPage>();
@@ -276,7 +306,7 @@ class WebGraph {
     }
 
 
-    // 2 marks
+    // 2 marks DONE
     // Return the index of the webpage with the given name; otherwise return -1
     private int FindPage(string name) {
         //Look through all of the webpages in the list P
@@ -291,7 +321,7 @@ class WebGraph {
     }
 
 
-    // 4 marks
+    // 4 marks DONE
     // Add a webpage with the given name and store it on the host server
     // Return true if successful; otherwise return false
     public bool AddPage(string name, string host) {
@@ -328,17 +358,71 @@ class WebGraph {
         return false;
     }
 
-    // 3 marks
+    // 3 marks DONE
     // Add a hyperlink from one webpage to another
     // Return true if successful; otherwise return false
     public bool AddLink(string from, string to) {
-        return false;
+        var fromIndex = FindPage(from);
+        var toIndex = FindPage(to);
+
+        //If webpages don't exist
+        if (fromIndex == -1) {
+            Console.WriteLine("webpage " + from + " does not exist. Cannot add link.");
+            return false;
+        }
+
+        if (toIndex == -1) {
+            Console.WriteLine("webpage " + to + " does not exist. Cannot add link.");
+            return false;
+        }
+
+        //Add a check here if a webpage shouldn't link to itself
+        //if (from == to) {
+            //return false;
+        //}
+
+        //Check if there is already a hyperlink from    from --> to
+        for (int i = 0; i < P[fromIndex].E.Count; i++) {
+            //If there was a connection found
+            if (P[fromIndex].E[i] == P[toIndex]) {
+                Console.WriteLine(from + " already has a connection to " + to + ". Only one edge is allowed going to a webpage.");
+                return false;
+            }
+        }
+        
+        //If the webpages both exist, link the "from" webpage to the "to" webpage. The webgraph is bidirectional, so not the same as the serverGraph
+        P[fromIndex].E.Add(P[toIndex]);
+        return true;
     }
 
-    // 3 marks
+    // 3 marks DONE
     // Remove a hyperlink from one webpage to another
     // Return true if successful; otherwise return false
     public bool RemoveLink(string from, string to) {
+        var fromIndex = FindPage(from);
+        var toIndex = FindPage(to);
+
+        //If webpages don't exist
+        if (fromIndex == -1) {
+            Console.WriteLine("webpage " + from + " does not exist. Cannot remove link.");
+            return false;
+        }
+
+        if (toIndex == -1) {
+            Console.WriteLine("webpage " + to + " does not exist. Cannot remove link.");
+            return false;
+        }
+
+        //Find the connection from "from" --> "to"
+        for (int i = 0; i < P[fromIndex].E.Count; i++) {
+            //If a connection is found
+            if (P[fromIndex].E[i] == P[toIndex]) {
+                //Remove the link from "from" that points to "to"
+                P[fromIndex].E.RemoveAt(i);
+                return true;
+            }
+        }
+        Console.WriteLine("Error: Removing hyperlink from webpage " + from + " to " + to);
         return false;
     }
 
@@ -350,11 +434,23 @@ class WebGraph {
         return 0f;
     }
 
-    // 3 marks
+    // 3 marks DONE
     // Print the name and hyperlinks of each webpage
     public void PrintGraph() {
         for (int i = 0; i < P.Count; i++) {
+            Console.WriteLine();
             Console.WriteLine(P[i].Name + " connected to " + P[i].Server);
+
+            Console.Write(P[i].Name + " has the following hyperlinks: ");
+            //Print Hyperlinks
+            string msg = "";
+            //Go through the list of webpages
+            for (int j = 0; j < P[i].E.Count; j++) {
+                //Concatenate all of the hyperlink names to print out later
+                msg = msg + P[i].E[j].Name + ", ";
+            }
+            Console.Write(msg);
+            Console.WriteLine();
         }
     }
 }
@@ -372,6 +468,7 @@ class Program
         //Console.WriteLine("New ServerGraph created: " + serverGraphOne);
 
         //2.Add a number of servers.
+        Console.WriteLine("Testing addServers()");
         serverGraphOne.AddServer("A", "B"); //Test adding the first server
 
         serverGraphOne.AddServer("B", "A"); //Test Connecting to an existing server
@@ -385,9 +482,22 @@ class Program
         serverGraphOne.AddServer("F", "A"); 
         serverGraphOne.AddServer("G", "A"); 
 
-        serverGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();
 
         //3.Add additional connections between servers.
+        Console.WriteLine("Testing addConnections().");
+        serverGraphOne.AddConnection("E", "F"); //Test adding a connection between two existing servers
+
+        serverGraphOne.AddConnection("E", "Z"); //Test adding a connection between one existing and one non-existing server
+
+        serverGraphOne.AddConnection("E", "F"); //Test adding a connection between two existing servers that already have a connection
+
+        serverGraphOne.AddConnection("Z", "X"); //Test adding a connection between two non-existing servers
+
+        //serverGraphOne.PrintGraph();
+
+
+        Console.WriteLine("Testing addPages()");
         //4.Add a number of webpages to various servers.
         webGraphOne.AddPage("001", "B");    //Test adding a webpage to an existing host
 
@@ -405,12 +515,43 @@ class Program
         webGraphOne.AddPage("008", "D");    
 
 
-        webGraphOne.PrintGraph();
-
+        //webGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();        //Testing printGraph()
 
 
 
         //5.Add and remove hyperlinks between the webpages.
+        webGraphOne.AddLink("003", "004");  //Test adding a hyperlink between two existing webpages
+
+        webGraphOne.AddLink("003", "zzz");  //Test adding a hyperlink from an existing webpage to a non-existing webpage
+
+        webGraphOne.AddLink("zzz", "004");  //Test adding a hyperlink from a non-existing webpage to an existing webpage
+        
+        webGraphOne.AddLink("zzx", "zzz");  //Test adding a hyperlink two nonexisting webpages
+        
+        webGraphOne.AddLink("003", "004");  //Test adding a duplicate hyperlink
+
+        webGraphOne.AddLink("004", "003");  //Test adding a hyperlink in the other direction
+
+        webGraphOne.AddLink("004", "007");  //Test adding multiple hyperlinks
+        webGraphOne.AddLink("004", "008");  
+        webGraphOne.AddLink("008", "001");  
+
+        webGraphOne.AddLink("003", "003");  //Test connecting a webpage to itself
+        webGraphOne.AddLink("003", "003");  //Test connecting a webpage to itself again
+
+
+        webGraphOne.RemoveLink("003", "003");       //Test removing an existing link
+
+        webGraphOne.RemoveLink("003", "zzz");       //Test removing a non existing link
+
+        webGraphOne.RemoveLink("zzz", "003");       //Test removing from a non-existing webpage
+
+        webGraphOne.RemoveLink("004", "003");       //Test removing an existing link
+
+        webGraphOne.PrintGraph();
+
+
         //6.Remove both webpages and servers.
         //7.Determine the articulation points of the remaining Internet.
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
