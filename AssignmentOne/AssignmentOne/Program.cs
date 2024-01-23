@@ -155,7 +155,49 @@ public class ServerGraph {
     // and webpages to the other server
     // Return true if successful; otherwise return false
     public bool RemoveServer(string name, string other) {
-        return false;
+        var nameIndex = FindServer(name);
+        var otherIndex = FindServer(other);
+        
+        //If servers don't exist
+        if (nameIndex == -1) {
+            Console.WriteLine("First server does not exist " + name + ". Can't remove server.");
+            return false;
+        }
+        
+        if (otherIndex == -1) {
+            Console.WriteLine("Other server does not exist " + other + ". Can't remove server.");
+            return false;
+        }
+
+        //Check if the other server is the same as the name server
+        if (name == other) {
+            Console.WriteLine("Cannot remove " + name + ". " + name + " specified as both name and other server.");
+            return false;
+        }
+
+        //Move over all of the webpages currently on the old server. *NOTE: "name" server still points to the webpages but will be deleted later, so we don't have to remove name's references.
+        for (int i = 0; i < V[nameIndex].P.Count; i++) {
+            var webpage = V[nameIndex].P[i];    //Gets a reference to the webpage we are moving over
+            //Change the webpages host names
+            webpage.Server = V[otherIndex].Name;
+
+            V[otherIndex].P.Add(webpage);       //Have the new server point towards the webpage
+        }
+
+        NumServers--;
+
+        //We want to replace the values of the removed vertex with the last vertex's adjancency data
+        V[nameIndex] = V[NumServers]; //The vertex index of the vertex we are removing is now equal to the last vertex in the list
+
+        //This will loop through all of the values in the adjacency matrix to replace the values 
+        for (int j = NumServers; j >= 0; j--) {    //Say numVertices = 4, and vertexIndex = 1
+            E[j, nameIndex] = E[j, NumServers];  //(4,1)'s value replaced with (4,4)'s value (value being the weight assigned to that edge)
+            E[nameIndex, j] = E[NumServers, j];  //(1,4)'s value replaced with (4,4)'s value (value being the weight assigned to that edge)
+                                                    //Then  (3,1) replaced with (3,4)
+                                                    //      (1,3) replaced with (4,3) and so on...
+        }
+
+        return true;
     }
     // 3 marks DONE
     // Add a connection from one server to another
@@ -549,10 +591,30 @@ class Program
 
         webGraphOne.RemoveLink("004", "003");       //Test removing an existing link
 
-        webGraphOne.PrintGraph();
+        //webGraphOne.PrintGraph();
 
 
         //6.Remove both webpages and servers.
+        serverGraphOne.PrintGraph();
+        webGraphOne.PrintGraph();
+
+        serverGraphOne.RemoveServer("B", "A"); //Test removing a server, two existing servers
+
+        serverGraphOne.RemoveServer("A", "Z"); //Test removing a server, source existing
+
+        serverGraphOne.RemoveServer("Z", "A"); //Test removing a server, other server existing
+
+        serverGraphOne.RemoveServer("B", "A"); //Test removing a server, two existing servers
+
+        serverGraphOne.RemoveServer("G", "A"); //Test removing all servers
+        serverGraphOne.RemoveServer("D", "A");
+        serverGraphOne.RemoveServer("E", "A");
+        serverGraphOne.RemoveServer("F", "A");
+        serverGraphOne.RemoveServer("A", "A");          //Also test removing a server with both fields having the same server
+
+        serverGraphOne.PrintGraph();
+        webGraphOne.PrintGraph();
+
         //7.Determine the articulation points of the remaining Internet.
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
 
