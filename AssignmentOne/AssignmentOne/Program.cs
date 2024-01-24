@@ -150,7 +150,25 @@ public class ServerGraph {
         return true;
     }
 
-    // 4 marks
+    //DONE
+    //Function that I created
+    //Called by the web graphs RemoveWebpage() method to remove the webpage from the server after the hyperlinks pointing to it have been removed.
+    //This shouldn't be public because it just supports the removeWebpage() method in the webgraph class, calling it on it's own would cause issues. I don't know what access modifier to 
+    //use. Maybe implement an interface??
+    public bool RemoveWebPage(WebPage w) {
+        var hostIndex = FindServer(w.Server);
+        var result = V[hostIndex].P.Remove(w);
+
+        if (result == true) {
+            return true;
+        }
+        else {
+            Console.WriteLine("Unable to remove webpage " + w.Name + " from server " + w.Server);
+            return false;
+        }
+    }
+
+    // 4 marks DONE
     // Remove the server with the given name by assigning its connections
     // and webpages to the other server
     // Return true if successful; otherwise return false
@@ -199,6 +217,7 @@ public class ServerGraph {
 
         return true;
     }
+
     // 3 marks DONE
     // Add a connection from one server to another
     // Return true if successful; otherwise return false
@@ -242,9 +261,76 @@ public class ServerGraph {
     // Return the shortest path from one server to another
     // Hint: Use a variation of the breadth-first search
     public int ShortestPath(string from, string to) {
+        var fromIndex = FindServer(from);
+        var toIndex = FindServer(to);
+
+        //If the servers don't exist
+        if (fromIndex == -1) {
+            return -1;
+        }
+        if (toIndex == -1) {
+            return - 1;
+        }
+
+        //Make a list so we know what servers have been visited
+        bool[] visitedServers = new bool[NumServers];
+
+        //Start at the from server and perform a breadth-first search
+        ShortestPathPrivate(fromIndex, visitedServers, to);
+
+      
+
+        //Start at "from" and perform a breadth first search until you find "to"
+        //Get the from server
+        //Go to all of its immediate neighbors
+        //Check if the neighbors are "to"
+            //if yes, stop
+            //else, visit more neighbors
+
+
+        //Change later
         return -1;
     }
-    
+
+    //Supporting method for the public ShortestPath() method
+    private int ShortestPathPrivate(int fromIndex, bool[] visitedNodes, string to) {
+        int i;
+        int j;
+
+        //A queue is used because we want to visit all of the adjacent nodes first before moving deeper into the graph, so a queue makes sense because it's first come first served.
+        //The first nodes in the queue will be the immediatlely adjacent nodes to the one we are currently at.
+        Queue<int> Q = new Queue<int>();
+
+        //Add vertex to the queue and mark as visited
+        Q.Enqueue(fromIndex);
+        visitedNodes[fromIndex] = true;
+
+        while (Q.Count != 0) {
+            //Check if the "to" server has been found
+            //if (V[i].Name == ) {
+            //return 1;
+            //}
+            //else { 
+                //add or subtract from the path length
+            //}
+
+
+            i = Q.Dequeue();     // Output vertex when removed from the queue
+            Console.WriteLine(i + "(" + V[i].Name + ")");
+
+            for (j = 0; j < NumServers; j++)    // Enqueue unvisited adjacent vertices
+                                                 //Check if the node has been visited && check if there is an edge connecting the node we are currently at to the one being examined.
+                if (!visitedNodes[j] && E[i, j] == true) {
+                    Q.Enqueue(j);
+                    visitedNodes[j] = true;           // Mark server as visited
+                }
+        }
+
+
+
+        return -1;
+    }
+
     // 4 marks DONE
     // Print the name and connections of each server as well as
     // the names of the webpages it hosts
@@ -392,12 +478,45 @@ class WebGraph {
         }
     }
 
-    // 8 marks
+    // 8 marks DONE
     // Remove the webpage with the given name, including the hyperlinks
     // from and to the webpage
     // Return true if successful; otherwise return false
     public bool RemovePage(string name) {
-        return false;
+        var pageToRemoveIndex = FindPage(name);
+
+        //If the page doesn't exist
+        if (pageToRemoveIndex == -1) {
+            Console.WriteLine("The page (" + name + ") you are trying to remove does not exist.");
+            return false;
+        }
+
+        //We have to remove anything that points/references the webpage. i.e. any hyperlinks from oher webpages to the one you are trying to remove.
+        //Loop through all of the webpages in P from the webgraph
+        for (int i = 0; i < P.Count; i++) {
+            //Loop through all of the hyperlinks that the current webpage has
+            for (int j = 0; j < P[i].E.Count; j++) {
+                if (P[i].E[j].Name == name) {
+                    Console.WriteLine("Hyperlink found referencing " + name + " in webpage " + P[i].Name);
+
+                    //Remove the hyperlink
+                    P[i].E.RemoveAt(j);
+                }
+            }
+        }
+
+        //After removing all of the hyperlinks that reference our webpage, remove it from the webpage's host server
+        var result = serverGraph.RemoveWebPage(P[pageToRemoveIndex]);
+
+        //Remove the webpage from the webGraph
+        P.RemoveAt(pageToRemoveIndex);
+
+        if (result == true) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     // 3 marks DONE
@@ -615,7 +734,28 @@ class Program
         serverGraphOne.PrintGraph();
         webGraphOne.PrintGraph();
 
+        webGraphOne.RemovePage("005");  //Test removing an existing webpage with no hyperlinks referencing it
+
+        webGraphOne.RemovePage("008");  //Test removing an existing webpage with hyperlinks referencing it
+
+        webGraphOne.RemovePage("008");  //Test removing a non-existing webpage
+
+        serverGraphOne.PrintGraph();
+        webGraphOne.PrintGraph();
+
         //7.Determine the articulation points of the remaining Internet.
+
+        //Testing ShortestPath()
+        serverGraphOne.AddServer("B", "A");
+        serverGraphOne.AddServer("D", "A");
+        serverGraphOne.AddServer("C", "D");
+        serverGraphOne.AddServer("E", "D");
+        serverGraphOne.AddConnection("B", "D");
+
+        serverGraphOne.ShortestPath("A", "C");
+
+        serverGraphOne.PrintGraph();
+        //webGraphOne.PrintGraph();
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
 
 
