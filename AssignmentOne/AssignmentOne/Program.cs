@@ -153,8 +153,8 @@ public class ServerGraph {
     //DONE
     //Function that I created
     //Called by the web graphs RemoveWebpage() method to remove the webpage from the server after the hyperlinks pointing to it have been removed.
-    //This shouldn't be public because it just supports the removeWebpage() method in the webgraph class, calling it on it's own would cause issues. I don't know what access modifier to 
-    //use. Maybe implement an interface??
+    //This shouldn't be public because it just supports the removeWebpage() method in the webgraph class, calling it on it's own would cause issues.
+    //I don't know what access modifier to use.
     public bool RemoveWebPage(WebPage w) {
         var hostIndex = FindServer(w.Server);
         var result = V[hostIndex].P.Remove(w);
