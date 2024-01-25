@@ -272,63 +272,51 @@ public class ServerGraph {
             return - 1;
         }
 
-        //Make a list so we know what servers have been visited
+        //Distance for a server to itself
+        if (from == to) {
+            return 0;
+        }
+
         bool[] visitedServers = new bool[NumServers];
-
-        //Start at the from server and perform a breadth-first search
-        ShortestPathPrivate(fromIndex, visitedServers, to);
-
-      
-
-        //Start at "from" and perform a breadth first search until you find "to"
-        //Get the from server
-        //Go to all of its immediate neighbors
-        //Check if the neighbors are "to"
-            //if yes, stop
-            //else, visit more neighbors
+        int[] distances = new int[NumServers]; // Array to store distances from the starting server
 
 
-        //Change later
-        return -1;
+        //Start at the "from" server and perform a breadth-first search looking for "to"
+        var pathDistance = ShortestPathPrivate(fromIndex, visitedServers, to, distances);
+        return pathDistance;
     }
 
     //Supporting method for the public ShortestPath() method
-    private int ShortestPathPrivate(int fromIndex, bool[] visitedNodes, string to) {
+    private int ShortestPathPrivate(int fromIndex, bool[] visitedNodes, string to, int[] distances) {
         int i;
         int j;
-
-        //A queue is used because we want to visit all of the adjacent nodes first before moving deeper into the graph, so a queue makes sense because it's first come first served.
-        //The first nodes in the queue will be the immediatlely adjacent nodes to the one we are currently at.
         Queue<int> Q = new Queue<int>();
 
-        //Add vertex to the queue and mark as visited
+        //Add our start server to the queue to begin the breadth-first search
         Q.Enqueue(fromIndex);
         visitedNodes[fromIndex] = true;
+        distances[fromIndex] = 0; // Distance from the starting server to itself is 0
 
         while (Q.Count != 0) {
-            //Check if the "to" server has been found
-            //if (V[i].Name == ) {
-            //return 1;
-            //}
-            //else { 
-                //add or subtract from the path length
-            //}
+            i = Q.Dequeue();
 
+            //If we found the server
+            if (V[i].Name == to) {
+                return distances[i]; // Return the distance when the destination server is found
+            }
 
-            i = Q.Dequeue();     // Output vertex when removed from the queue
-            Console.WriteLine(i + "(" + V[i].Name + ")");
-
-            for (j = 0; j < NumServers; j++)    // Enqueue unvisited adjacent vertices
-                                                 //Check if the node has been visited && check if there is an edge connecting the node we are currently at to the one being examined.
-                if (!visitedNodes[j] && E[i, j] == true) {
+            //Look through all of the servers to check if they are neighbors with the current server we are looking at
+            for (j = 0; j < NumServers; j++){
+                //If this is a neighbor of the node we are currently at
+                if (!visitedNodes[j] && E[i, j]) {
                     Q.Enqueue(j);
-                    visitedNodes[j] = true;           // Mark server as visited
+                    visitedNodes[j] = true;
+                    distances[j] = distances[i] + 1; // Update the distance for the adjacent node
                 }
+            }
         }
 
-
-
-        return -1;
+        return -1; // Return -1 if the destination server is not reachable
     }
 
     // 4 marks DONE
@@ -752,9 +740,25 @@ class Program
         serverGraphOne.AddServer("E", "D");
         serverGraphOne.AddConnection("B", "D");
 
-        serverGraphOne.ShortestPath("A", "C");
-
         serverGraphOne.PrintGraph();
+
+        int shortestPath = serverGraphOne.ShortestPath("A", "C");           //Test two existing nodes
+        Console.WriteLine("Shortest path from A to C is " + shortestPath);
+
+        shortestPath = serverGraphOne.ShortestPath("A", "A");               //Test a node to itself
+        Console.WriteLine("Shortest path from A to A is " + shortestPath);
+
+        shortestPath = serverGraphOne.ShortestPath("A", "B");               //Test two nodes 1 away from eachother
+        Console.WriteLine("Shortest path from A to B is " + shortestPath);
+
+        shortestPath = serverGraphOne.ShortestPath("E", "A");               //Test two existing nodes 2 away from eachother
+        Console.WriteLine("Shortest path from E to A is " + shortestPath);
+
+        shortestPath = serverGraphOne.ShortestPath("E", "Z");               //Test a non-existing node
+        Console.WriteLine("Shortest path from E to Z is " + shortestPath);
+
+
+
         //webGraphOne.PrintGraph();
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
 
