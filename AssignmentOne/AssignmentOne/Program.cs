@@ -249,15 +249,17 @@ public class ServerGraph {
     // two or more disjoint graphs if ever one of them would go down
     // Hint: Use a variation of the depth-first search
     public string[] CriticalServers() {
-        string[] criticalServers = new string[20];
-        
+        string[] criticalServers = new string[NumServers];  //NumServers length will gurantee that the array will hold all of the potential critical servers
+
         //
+        
+
 
 
         return criticalServers;
 
     }
-    // 6 marks
+    // 6 marks DONE
     // Return the shortest path from one server to another
     // Hint: Use a variation of the breadth-first search
     public int ShortestPath(string from, string to) {
@@ -580,6 +582,12 @@ class WebGraph {
     // given name to each of its hyperlinks
     // Hint: Use the method ShortestPath in the class ServerGraph
     public float AvgShortestPaths(string name) { 
+        
+        
+        
+        
+        
+        
         return 0f;
     }
 
