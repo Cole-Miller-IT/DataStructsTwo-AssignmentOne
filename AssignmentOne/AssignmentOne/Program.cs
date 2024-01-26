@@ -259,6 +259,9 @@ public class ServerGraph {
             //Get one of its neighbors
             var currentServersNeighbor = GetNeighbor(currentServer.Name);
 
+            Console.WriteLine("Current Server: " + currentServer.Name);
+            Console.WriteLine("Nearest Neighbor: " + currentServersNeighbor.Name);
+
             //Remove the connections from the current server, but remember them for later
             bool[,] originalE = new bool[E.GetLength(0), E.GetLength(0)];
             Array.Copy(E, originalE, E.Length); //Create a deep copy of E
@@ -266,25 +269,26 @@ public class ServerGraph {
             var tempE = RemoveConnections(currentServer.Name);
             E = tempE;
 
-            //Decrease numServers
-            NumServers--;
-
             //Perform a depth-first search on the neighbor
+            //var result = DepthFirstSearch(currentServersNeighbor.Name);
+            var visitedServers = DepthFirstSearch(currentServersNeighbor.Name);
+            Console.WriteLine("Visited server count: " + visitedServers);
 
             //If the result of the depth-first search can't now find every other server then the removed server was a critical server
             //Add it to the list of critical servers
+            //NumServers - 1 because we "removed" the current server
+            if (visitedServers != (NumServers - 1)) {
+                //current server was a critical server
+                //criticalServers[i].a
+                Console.WriteLine("Critical server found: " + currentServer.Name);
+
+            }
 
             //Add back the connections we removed earlier
             E = originalE;
 
-            //Increase numServers
-            NumServers++;
-
-            Console.WriteLine(currentServer.Name);
-            Console.WriteLine(currentServersNeighbor.Name);
-            break;  //Remove later
+            Console.WriteLine();
         }
-        
 
         return criticalServers;
     }
@@ -324,6 +328,53 @@ public class ServerGraph {
         }
 
         return tempE;
+    }
+
+    //Supporting method for CriticalServers(). Modified version of DFS that returns the number of visited nodes.
+    private int DepthFirstSearch(string neighborsName) {
+        //We want to traverse the tree by going as far down as we can before going back up again. And this process
+        //will repeat recursively until all nodes have been found
+        bool[] visitedNodes = new bool[NumServers];
+        int index = FindServer(neighborsName);
+
+        //Clear the array
+        for (int i = 0; i < NumServers; i++) {
+            visitedNodes[i] = false;
+        }
+
+        //Call DFS only on the neighbor
+        visitedNodes = DepthFirstSearchPrivate(index, visitedNodes);
+
+        //See how many nodes were visited by the DFS
+        int count = 0;
+        for (int i = 0; i < visitedNodes.Length; i++) {
+            if (visitedNodes[i] == true) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    //Supporting method for DepthFirstSearch(). Returns the array of visited nodes
+    private bool[] DepthFirstSearchPrivate(int i, bool[] visitedNodes) {
+        //Recursion is a little hard to think about for me in these examples so imagine it like this
+        //you arrive at node A, you change the visitedNodes list to true, then immediately call this function on B.
+        //              A --> B
+        int j;
+        visitedNodes[i] = true;    // Output vertex when marked as visited
+        Console.WriteLine(i + "(" + V[i].Name + ")");
+
+        // Visit next unvisited adjacent vertex, numServers b/c this node could potentially be connected to every other node
+        for (j = 0; j < NumServers; j++) {
+            //This checks if we have visited the node && if there is an edge connected to this node
+            if (!visitedNodes[j] && E[i, j] == true) {
+                //This current node has an edge connected to an unvistited node, call DepthFirst search function again to traverse it
+                DepthFirstSearchPrivate(j, visitedNodes);
+            }
+        }
+
+        return visitedNodes;
     }
 
     // 6 marks DONE
