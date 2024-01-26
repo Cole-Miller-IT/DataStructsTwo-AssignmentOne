@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 public class ServerGraph {
@@ -244,7 +245,7 @@ public class ServerGraph {
         return true;
     }
     
-    // 10 marks
+    // 10 marks DONE
     // Return all servers that would disconnect the server graph into
     // two or more disjoint graphs if ever one of them would go down
     // Hint: Use a variation of the depth-first search
@@ -262,7 +263,7 @@ public class ServerGraph {
             Console.WriteLine("Current Server: " + currentServer.Name);
             Console.WriteLine("Nearest Neighbor: " + currentServersNeighbor.Name);
 
-            //Remove the connections from the current server, but remember them for later
+            //Remove the connections from the current server, but remember them for later.  //#NOTE, could change this later to only copy the rows and columns of the current serve for scalability.
             bool[,] originalE = new bool[E.GetLength(0), E.GetLength(0)];
             Array.Copy(E, originalE, E.Length); //Create a deep copy of E
 
@@ -270,7 +271,6 @@ public class ServerGraph {
             E = tempE;
 
             //Perform a depth-first search on the neighbor
-            //var result = DepthFirstSearch(currentServersNeighbor.Name);
             var visitedServers = DepthFirstSearch(currentServersNeighbor.Name);
             Console.WriteLine("Visited server count: " + visitedServers);
 
@@ -279,9 +279,8 @@ public class ServerGraph {
             //NumServers - 1 because we "removed" the current server
             if (visitedServers != (NumServers - 1)) {
                 //current server was a critical server
-                //criticalServers[i].a
+                criticalServers[i] = currentServer.Name;
                 Console.WriteLine("Critical server found: " + currentServer.Name);
-
             }
 
             //Add back the connections we removed earlier
@@ -323,13 +322,14 @@ public class ServerGraph {
 
         //Loop through to remove all possible edges
         for (int i = 0; i < NumServers; i++) {
-            E[serverIndex, i] = false;        // Remove connections
-            E[i, serverIndex] = false;        // Remove connections
+            E[serverIndex, i] = false;        // Remove row connections
+            E[i, serverIndex] = false;        // Remove column connections
         }
 
         return tempE;
     }
 
+    //DONE
     //Supporting method for CriticalServers(). Modified version of DFS that returns the number of visited nodes.
     private int DepthFirstSearch(string neighborsName) {
         //We want to traverse the tree by going as far down as we can before going back up again. And this process
@@ -356,6 +356,7 @@ public class ServerGraph {
         return count;
     }
 
+    //DONE
     //Supporting method for DepthFirstSearch(). Returns the array of visited nodes
     private bool[] DepthFirstSearchPrivate(int i, bool[] visitedNodes) {
         //Recursion is a little hard to think about for me in these examples so imagine it like this
@@ -365,7 +366,7 @@ public class ServerGraph {
         visitedNodes[i] = true;    // Output vertex when marked as visited
         Console.WriteLine(i + "(" + V[i].Name + ")");
 
-        // Visit next unvisited adjacent vertex, numServers b/c this node could potentially be connected to every other node
+        // Visit next unvisited adjacent vertex, j < numServers b/c this node could potentially be connected to every other node
         for (j = 0; j < NumServers; j++) {
             //This checks if we have visited the node && if there is an edge connected to this node
             if (!visitedNodes[j] && E[i, j] == true) {
@@ -734,10 +735,8 @@ class WebGraph {
 }
 
 
-class Program
-{
-    static void Main(string[] args)
-    {
+class Program {
+    static void Main(string[] args) {
         ////////////////Testing//////////////////////////////////
         //1.Instantiate a server graph and a web graph.
         var serverGraphOne = new ServerGraph();
@@ -831,8 +830,8 @@ class Program
 
 
         //6.Remove both webpages and servers.
-        serverGraphOne.PrintGraph();
-        webGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();
+        //webGraphOne.PrintGraph();
 
         serverGraphOne.RemoveServer("B", "A"); //Test removing a server, two existing servers
 
@@ -848,8 +847,8 @@ class Program
         serverGraphOne.RemoveServer("F", "A");
         serverGraphOne.RemoveServer("A", "A");          //Also test removing a server with both fields having the same server
 
-        serverGraphOne.PrintGraph();
-        webGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();
+        //webGraphOne.PrintGraph();
 
         webGraphOne.RemovePage("005");  //Test removing an existing webpage with no hyperlinks referencing it
 
@@ -857,8 +856,8 @@ class Program
 
         webGraphOne.RemovePage("008");  //Test removing a non-existing webpage
 
-        serverGraphOne.PrintGraph();
-        webGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();
+        //webGraphOne.PrintGraph();
 
         //7.Determine the articulation points of the remaining Internet.
 
@@ -869,26 +868,63 @@ class Program
         serverGraphOne.AddServer("E", "D");
         serverGraphOne.AddConnection("B", "D");
 
-        serverGraphOne.PrintGraph();
+        //serverGraphOne.PrintGraph();
 
         int shortestPath = serverGraphOne.ShortestPath("A", "C");           //Test two existing nodes
-        Console.WriteLine("Shortest path from A to C is " + shortestPath);
+        //Console.WriteLine("Shortest path from A to C is " + shortestPath);
 
         shortestPath = serverGraphOne.ShortestPath("A", "A");               //Test a node to itself
-        Console.WriteLine("Shortest path from A to A is " + shortestPath);
+       //Console.WriteLine("Shortest path from A to A is " + shortestPath);
 
         shortestPath = serverGraphOne.ShortestPath("A", "B");               //Test two nodes 1 away from eachother
-        Console.WriteLine("Shortest path from A to B is " + shortestPath);
+        //Console.WriteLine("Shortest path from A to B is " + shortestPath);
 
         shortestPath = serverGraphOne.ShortestPath("E", "A");               //Test two existing nodes 2 away from eachother
-        Console.WriteLine("Shortest path from E to A is " + shortestPath);
+        //Console.WriteLine("Shortest path from E to A is " + shortestPath);
 
         shortestPath = serverGraphOne.ShortestPath("E", "Z");               //Test a non-existing node
-        Console.WriteLine("Shortest path from E to Z is " + shortestPath);
+        //Console.WriteLine("Shortest path from E to Z is " + shortestPath);
 
-        serverGraphOne.PrintGraph();
-        serverGraphOne.CriticalServers();
+
         
+        serverGraphOne.PrintGraph();
+        var result = serverGraphOne.CriticalServers(); //Test critical servers, 1 critical server
+
+        Console.WriteLine("Critical Servers (0 found if blank):");
+        for (int i = 0; i < result.Length; i++) {
+            if (result[i] != null) {
+                Console.Write(result[i] + ", ");
+            }
+        }
+
+        //Console.WriteLine("Critical servers: " + result);
+
+        serverGraphOne.AddServer("X", "C");
+        serverGraphOne.AddServer("Y", "E");
+        serverGraphOne.PrintGraph();
+        result = serverGraphOne.CriticalServers(); //Test critical servers, 3 critical servers
+
+        Console.WriteLine("Critical Servers (0 found if blank):");
+        for (int i = 0; i < result.Length; i++) {
+            if (result[i] != null) {
+                Console.Write(result[i] + ", ");
+            }
+        }
+
+
+        serverGraphOne.AddConnection("E", "A");
+        serverGraphOne.AddConnection("Y", "X");
+        serverGraphOne.PrintGraph();
+        result = serverGraphOne.CriticalServers(); //Test critical servers, 0 critical servers
+
+        Console.WriteLine("Critical Servers (0 found if blank):");
+        for (int i = 0; i < result.Length; i++) {
+            if (result[i] != null) {
+                Console.Write(result[i] + ", ");
+            }
+        }
+
+
 
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
 
