@@ -540,7 +540,7 @@ class WebGraph {
 
     // 2 marks DONE
     // Create an empty WebGraph
-    public WebGraph(ServerGraph sg) { 
+    public WebGraph(ServerGraph sg) {
         P = new List<WebPage>();
         serverGraph = sg;
     }
@@ -651,7 +651,7 @@ class WebGraph {
 
         //Add a check here if a webpage shouldn't link to itself
         //if (from == to) {
-            //return false;
+        //return false;
         //}
 
         //Check if there is already a hyperlink from    from --> to
@@ -662,7 +662,7 @@ class WebGraph {
                 return false;
             }
         }
-        
+
         //If the webpages both exist, link the "from" webpage to the "to" webpage. The webgraph is bidirectional, so not the same as the serverGraph
         P[fromIndex].E.Add(P[toIndex]);
         return true;
@@ -703,14 +703,34 @@ class WebGraph {
     // Return the average length of the shortest paths from the webpage with
     // given name to each of its hyperlinks
     // Hint: Use the method ShortestPath in the class ServerGraph
-    public float AvgShortestPaths(string name) { 
-        
-        
-        
-        
-        
-        
-        return 0f;
+    public float AvgShortestPaths(string webpageName) {
+        //if webpage is not valid
+        var webpageIndex = FindPage(webpageName);
+        if (webpageIndex == -1) {
+            Console.WriteLine("Page not real");
+            return -1f;
+        }
+
+        var shortestPath = 0;
+        //for all hyperlinks that this webpage has
+        for (int i = 0; i < P[webpageIndex].E.Count; i++) {
+            var hyperlinksServerHost = P[webpageIndex].E[i].Server;
+            Console.WriteLine(hyperlinksServerHost);
+
+            //Perform a BFS on the webpage's host server to the hyperlink's host server, get back the distance from those servers
+            var hyperlinkShortestPath = serverGraph.ShortestPath(P[webpageIndex].Server, hyperlinksServerHost);
+            Console.WriteLine("Shortest Path from " + P[webpageIndex].Server + " to " + hyperlinksServerHost + " is: " + hyperlinkShortestPath);
+
+            shortestPath = shortestPath + hyperlinkShortestPath;
+        }
+
+        //Calculate the average path cost
+        //Console.WriteLine("Shortest Path found end: " + shortestPath);
+        //Console.WriteLine("E count: " + P[webpageIndex].E.Count);
+        float avgShortestPath = shortestPath / P[webpageIndex].E.Count;
+        Console.WriteLine("Average Shortest Path found: " + avgShortestPath + " for webpage " + webpageName);
+        Console.WriteLine("-----------------------------");
+        return avgShortestPath;
     }
 
     // 3 marks DONE
@@ -927,7 +947,32 @@ class Program {
 
 
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
+        webGraphOne.AddPage("010", "B");
+        webGraphOne.AddPage("011", "E");
+        webGraphOne.AddPage("012", "Y");
+        webGraphOne.AddPage("013", "D");
 
+        webGraphOne.AddLink("001", "010");
+        webGraphOne.AddLink("010", "012");
+        webGraphOne.AddLink("007", "011");
+        webGraphOne.AddLink("010", "013");
+        webGraphOne.AddLink("013", "012");
+
+        webGraphOne.AddLink("006", "003");
+        webGraphOne.AddLink("006", "010");
+        webGraphOne.AddLink("006", "011");
+        webGraphOne.AddLink("006", "012");
+        webGraphOne.AddLink("006", "013");
+
+        serverGraphOne.PrintGraph();    
+        webGraphOne.PrintGraph();
+        webGraphOne.AvgShortestPaths("003");    //Test a webpage with 1 hyperlink, where both webpages are on the same server
+
+        webGraphOne.AvgShortestPaths("001");    //Test a webpage with 1 hyperlink, both on seperate servers
+
+        webGraphOne.AvgShortestPaths("010");    //Test a webpage with 2 hyperlinks, all different servers
+
+        webGraphOne.AvgShortestPaths("006");    //Test a webpage with 5 hyperlinks
 
         //In a separate document, illustrate your test cases and compare them with the results of your program.
     }
