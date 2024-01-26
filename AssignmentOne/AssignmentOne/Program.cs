@@ -250,15 +250,82 @@ public class ServerGraph {
     // Hint: Use a variation of the depth-first search
     public string[] CriticalServers() {
         string[] criticalServers = new string[NumServers];  //NumServers length will gurantee that the array will hold all of the potential critical servers
+    
+        //For all of the servers in the graph
+        for (int i = 0; i < NumServers; i++) {
+            //Get the current server
+            var currentServer = V[i];
 
-        //
+            //Get one of its neighbors
+            var currentServersNeighbor = GetNeighbor(currentServer.Name);
+
+            //Remove the connections from the current server, but remember them for later
+            bool[,] originalE = new bool[E.GetLength(0), E.GetLength(0)];
+            Array.Copy(E, originalE, E.Length); //Create a deep copy of E
+
+            var tempE = RemoveConnections(currentServer.Name);
+            E = tempE;
+
+            //Decrease numServers
+            NumServers--;
+
+            //Perform a depth-first search on the neighbor
+
+            //If the result of the depth-first search can't now find every other server then the removed server was a critical server
+            //Add it to the list of critical servers
+
+            //Add back the connections we removed earlier
+            E = originalE;
+
+            //Increase numServers
+            NumServers++;
+
+            Console.WriteLine(currentServer.Name);
+            Console.WriteLine(currentServersNeighbor.Name);
+            break;  //Remove later
+        }
         
 
-
-
         return criticalServers;
-
     }
+
+    //DONE
+    //Supporting method for CriticalServers(). Gets the first neighbor from the the current server.
+    private WebServer GetNeighbor(string server) {
+        int serverIndex = FindServer(server);
+
+        //Loop though the row of the current server
+        //i.e. A    B 
+        //A  false  true
+        //B   true  false   <-- this row until a nieghbor is found (i.e. true is found)
+        //E[servIndex, 0], E[servIndex, 1], ...
+        for (int i = 0; i < NumServers; i++) {
+            //If we found an edge
+            if (E[serverIndex, i] == true) {
+                //Return the nieghbor
+                return V[i];
+            }
+        }
+
+        return null;
+    }
+
+    //DONE
+    // Supporting method for CriticalServers(). Removes connections from the current server.
+    private bool[,] RemoveConnections(string serverName) {
+        var tempE = E;   //Stores the edges from E, with all edges to the current server removed
+
+        int serverIndex = FindServer(serverName);
+
+        //Loop through to remove all possible edges
+        for (int i = 0; i < NumServers; i++) {
+            E[serverIndex, i] = false;        // Remove connections
+            E[i, serverIndex] = false;        // Remove connections
+        }
+
+        return tempE;
+    }
+
     // 6 marks DONE
     // Return the shortest path from one server to another
     // Hint: Use a variation of the breadth-first search
@@ -324,7 +391,8 @@ public class ServerGraph {
     // 4 marks DONE
     // Print the name and connections of each server as well as
     // the names of the webpages it hosts
-    public void PrintGraph() { 
+    public void PrintGraph() {
+        Console.WriteLine();
         Console.WriteLine("Number of servers: " + NumServers);
 
 
@@ -380,6 +448,8 @@ public class ServerGraph {
             Console.Write(msg);
             Console.WriteLine();
         }
+
+        Console.WriteLine();
     }
 }
 
@@ -765,9 +835,10 @@ class Program
         shortestPath = serverGraphOne.ShortestPath("E", "Z");               //Test a non-existing node
         Console.WriteLine("Shortest path from E to Z is " + shortestPath);
 
+        serverGraphOne.PrintGraph();
+        serverGraphOne.CriticalServers();
+        
 
-
-        //webGraphOne.PrintGraph();
         //8.Calculate the average shortest distance to the hyperlinks of a given webpage.
 
 
