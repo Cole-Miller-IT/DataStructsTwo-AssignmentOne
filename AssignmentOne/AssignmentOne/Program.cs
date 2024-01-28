@@ -263,7 +263,7 @@ public class ServerGraph {
             Console.WriteLine("Current Server: " + currentServer.Name);
             Console.WriteLine("Nearest Neighbor: " + currentServersNeighbor.Name);
 
-            //Remove the connections from the current server, but remember them for later.  //#NOTE, could change this later to only copy the rows and columns of the current serve for scalability.
+            //Remove the connections from the current server, but remember them for later.  //#NOTE, could change this later to only copy the rows and columns of the current server for scalability.
             bool[,] originalE = new bool[E.GetLength(0), E.GetLength(0)];
             Array.Copy(E, originalE, E.Length); //Create a deep copy of E
 
@@ -535,8 +535,8 @@ public class WebPage {
 
 class WebGraph {
     private List<WebPage> P;
-    private ServerGraph serverGraph;
-    //...
+    private ServerGraph serverGraph;    //#NOTE: Made the WebGraph dependant on a ServerGraph already existing. Doesn't really make sense to have a WebGraph without a ServerGraph b/c 
+                                        //the webpages need a host name.
 
     // 2 marks DONE
     // Create an empty WebGraph
@@ -699,7 +699,7 @@ class WebGraph {
         return false;
     }
 
-    // 6 marks
+    // 6 marks DONE
     // Return the average length of the shortest paths from the webpage with
     // given name to each of its hyperlinks
     // Hint: Use the method ShortestPath in the class ServerGraph
@@ -717,7 +717,7 @@ class WebGraph {
             var hyperlinksServerHost = P[webpageIndex].E[i].Server;
             Console.WriteLine(hyperlinksServerHost);
 
-            //Perform a BFS on the webpage's host server to the hyperlink's host server, get back the distance from those servers
+            //Perform a BFS on the webpage's host server to the hyperlink's host server, get back the distance between those servers
             var hyperlinkShortestPath = serverGraph.ShortestPath(P[webpageIndex].Server, hyperlinksServerHost);
             Console.WriteLine("Shortest Path from " + P[webpageIndex].Server + " to " + hyperlinksServerHost + " is: " + hyperlinkShortestPath);
 
